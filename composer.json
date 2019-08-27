@@ -1,0 +1,32 @@
+{
+    "name":"codeception/module-apc",
+    "description":"APC module for Codeception",
+    "keywords":["APC", "codeception"],
+    "homepage":"http://codeception.com/",
+    "type":"library",
+    "license":"MIT",
+    "authors":[
+        {
+            "name":"Serghei Iakovlev"
+        },
+        {
+            "name":"Gintautas Miselis"
+        }
+    ],
+    "minimum-stability": "RC",
+
+    "require": {
+        "php": ">=5.6.0 <8.0",
+        "ext-apc": "*",
+        "codeception/codeception": "4.0.x-dev | ~4.0"
+    },
+    "require-dev": {
+        "codeception/util-robohelpers": "dev-master"
+    },
+    "autoload":{
+        "classmap": ["src/"]
+    },
+    "config": {
+        "classmap-authoritative": true
+    }
+}
