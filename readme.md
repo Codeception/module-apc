@@ -1,6 +1,6 @@
 # APC module for Codeception
 
-[![Build Status](https://travis-ci.org/Codeception/module-apc.svg?branch=master)](https://travis-ci.org/Codeception/module-apc)
+![Build Status](https://github.com/Codeception/module-apc/workflows/CI/badge.svg)
 
 ## Installation
 
