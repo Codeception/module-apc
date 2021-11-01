@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Codeception\Module;
 
 use Codeception\Module;
@@ -32,7 +35,6 @@ class Apc extends Module
     /**
      * Code to run before each test.
      *
-     * @param TestInterface $test
      * @throws ModuleException
      */
     public function _before(TestInterface $test)
@@ -54,8 +56,6 @@ class Apc extends Module
 
     /**
      * Code to run after each test.
-     *
-     * @param TestInterface $test
      */
     public function _after(TestInterface $test)
     {
@@ -70,7 +70,6 @@ class Apc extends Module
      * ``` php
      * <?php
      * $users_count = $I->grabValueFromApc('users_count');
-     * ?>
      * ```
      *
      * @param string|string[] $key
@@ -96,21 +95,20 @@ class Apc extends Module
      *
      * // Checks a 'users_count' exists and has the value 200
      * $I->seeInApc('users_count', 200);
-     * ?>
      * ```
      *
      * @param string|string[] $key
      * @param mixed $value
      */
-    public function seeInApc($key, $value = null)
+    public function seeInApc($key, $value = null): void
     {
         if (null === $value) {
-            $this->assertTrue($this->exists($key), "Cannot find key '$key' in APC(u).");
+            $this->assertTrue($this->exists($key), "Cannot find key '{$key}' in APC(u).");
             return;
         }
 
         $actual = $this->grabValueFromApc($key);
-        $this->assertEquals($value, $actual, "Cannot find key '$key' in APC(u) with the provided value.");
+        $this->assertEquals($value, $actual, "Cannot find key '{$key}' in APC(u) with the provided value.");
     }
 
     /**
@@ -125,22 +123,21 @@ class Apc extends Module
      *
      * // Checks a 'users_count' exists does not exist or its value is not the one provided
      * $I->dontSeeInApc('users_count', 200);
-     * ?>
      * ```
      *
      * @param string|string[] $key
      * @param mixed $value
      */
-    public function dontSeeInApc($key, $value = null)
+    public function dontSeeInApc($key, $value = null): void
     {
         if (null === $value) {
-            $this->assertFalse($this->exists($key), "The key '$key' exists in APC(u).");
+            $this->assertFalse($this->exists($key), "The key '{$key}' exists in APC(u).");
             return;
         }
 
         $actual = $this->grabValueFromApc($key);
         if (false !== $actual) {
-            $this->assertEquals($value, $actual, "The key '$key' exists in APC(u) with the provided value.");
+            $this->assertEquals($value, $actual, "The key '{$key}' exists in APC(u) with the provided value.");
         }
     }
 
@@ -164,15 +161,14 @@ class Apc extends Module
      * $entries['key3'] = ['value3a','value3b'];
      * $entries['key4'] = 4;
      * $I->haveInApc($entries, null);
-     * ?>
      * ```
      *
      * @param string|array $key
      * @param mixed $value
-     * @param int $expiration
-     * @return mixed
+     * @param int|null $expiration
+     * @return array|string
      */
-    public function haveInApc($key, $value, $expiration = null)
+    public function haveInApc($key, $value, int $expiration = null)
     {
         $this->store($key, $value, $expiration);
 
@@ -182,7 +178,7 @@ class Apc extends Module
     /**
      * Clears the APC(u) cache
      */
-    public function flushApc()
+    public function flushApc(): void
     {
         // Returns TRUE always
         $this->clear();
@@ -190,10 +186,8 @@ class Apc extends Module
 
     /**
      * Clears the APC(u) cache.
-     *
-     * @return bool
      */
-    protected function clear()
+    protected function clear(): bool
     {
         if (function_exists('apcu_clear_cache')) {
             return apcu_clear_cache();
@@ -206,8 +200,7 @@ class Apc extends Module
      * Checks if entry exists
      *
      * @param string|string[] $key
-     *
-     * @return bool|\string[]
+     * @return bool|string[]
      */
     protected function exists($key)
     {
@@ -222,18 +215,13 @@ class Apc extends Module
      * Fetch a stored variable from the cache
      *
      * @param string|string[] $key
-     *
      * @return mixed
      */
     protected function fetch($key)
     {
         $success = false;
 
-        if (function_exists('apcu_fetch')) {
-            $data = apcu_fetch($key, $success);
-        } else {
-            $data = apc_fetch($key, $success);
-        }
+        $data = function_exists('apcu_fetch') ? apcu_fetch($key, $success) : apc_fetch($key, $success);
 
         $this->debugSection('Fetching a stored variable', $success ? 'OK' : 'FAILED');
 
@@ -245,11 +233,9 @@ class Apc extends Module
      *
      * @param string|array $key
      * @param mixed $var
-     * @param int $ttl
-     *
      * @return array|bool
      */
-    protected function store($key, $var, $ttl = 0)
+    protected function store($key, $var, int $ttl = 0)
     {
         if (function_exists('apcu_store')) {
             return apcu_store($key, $var, $ttl);
