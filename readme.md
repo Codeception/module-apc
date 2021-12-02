@@ -1,11 +1,16 @@
-# APC module for Codeception
+# Codeception Module APC
 
-![Build Status](https://github.com/Codeception/module-apc/workflows/CI/badge.svg)
+APC module for Codeception
+
+[![Actions Status](https://github.com/Codeception/module-apc/workflows/CI/badge.svg)](https://github.com/Codeception/module-apc/actions)
+[![Latest Stable Version](https://poser.pugx.org/codeception/module-apc/v/stable)](https://github.com/Codeception/module-apc/releases)
+[![Total Downloads](https://poser.pugx.org/codeception/module-apc/downloads)](https://packagist.org/packages/codeception/module-apc)
+[![License](https://poser.pugx.org/codeception/module-apc/license)](/LICENSE)
 
 ## Installation
 
 ```
-composer require --dev "codeception/module-apc"
+composer require "codeception/module-apc" --dev
 ```
 
 ## Documentation
