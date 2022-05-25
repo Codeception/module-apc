@@ -15,9 +15,9 @@
     ],
     "minimum-stability": "RC",
     "require": {
-        "php": "^7.4 | ^8.0",
+        "php": "^8.0",
         "ext-apcu": "*",
-        "codeception/codeception": "^4.0"
+        "codeception/codeception": "^5.0"
     },
     "autoload":{
         "classmap": ["src/"]
