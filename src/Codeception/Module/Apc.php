@@ -10,7 +10,7 @@ use Codeception\Exception\ModuleException;
 
 /**
  * This module interacts with the [Alternative PHP Cache (APC)](https://php.net/manual/en/intro.apcu.php)
- * using either _APCu_ or _APC_ extension.
+ * using _APCu_ extension.
  *
  * Performs a cleanup by flushing all values after each test run.
  *
@@ -39,10 +39,10 @@ class Apc extends Module
      */
     public function _before(TestInterface $test)
     {
-        if (!extension_loaded('apc') && !extension_loaded('apcu')) {
+        if (!extension_loaded('apcu')) {
             throw new ModuleException(
                 __CLASS__,
-                'The APC(u) extension not loaded.'
+                'The APCu extension not loaded.'
             );
         }
 
@@ -63,7 +63,7 @@ class Apc extends Module
     }
 
     /**
-     * Grabs value from APC(u) by key.
+     * Grabs value from APCu by key.
      *
      * Example:
      *
@@ -71,11 +71,8 @@ class Apc extends Module
      * <?php
      * $users_count = $I->grabValueFromApc('users_count');
      * ```
-     *
-     * @param string|string[] $key
-     * @return mixed
      */
-    public function grabValueFromApc($key)
+    public function grabValueFromApc(string $key): mixed
     {
         $value = $this->fetch($key);
         $this->debugSection('Value', $value);
@@ -84,7 +81,7 @@ class Apc extends Module
     }
 
     /**
-     * Checks item in APC(u) exists and the same as expected.
+     * Checks item in APCu exists and the same as expected.
      *
      * Examples:
      *
@@ -97,22 +94,20 @@ class Apc extends Module
      * $I->seeInApc('users_count', 200);
      * ```
      *
-     * @param string|string[] $key
-     * @param mixed $value
      */
-    public function seeInApc($key, $value = null): void
+    public function seeInApc(string $key, mixed $value = null): void
     {
         if (null === $value) {
-            $this->assertTrue($this->exists($key), "Cannot find key '{$key}' in APC(u).");
+            $this->assertTrue($this->exists($key), "Cannot find key '$key' in APCu.");
             return;
         }
 
         $actual = $this->grabValueFromApc($key);
-        $this->assertEquals($value, $actual, "Cannot find key '{$key}' in APC(u) with the provided value.");
+        $this->assertEquals($value, $actual, "Cannot find key '$key' in APCu with the provided value.");
     }
 
     /**
-     * Checks item in APC(u) doesn't exist or is the same as expected.
+     * Checks item in APCu doesn't exist or is the same as expected.
      *
      * Examples:
      *
@@ -124,25 +119,20 @@ class Apc extends Module
      * // Checks a 'users_count' exists does not exist or its value is not the one provided
      * $I->dontSeeInApc('users_count', 200);
      * ```
-     *
-     * @param string|string[] $key
-     * @param mixed $value
      */
-    public function dontSeeInApc($key, $value = null): void
+    public function dontSeeInApc(string $key, mixed $value = null): void
     {
         if (null === $value) {
-            $this->assertFalse($this->exists($key), "The key '{$key}' exists in APC(u).");
+            $this->assertFalse($this->exists($key), "The key '$key' exists in APCu.");
             return;
         }
 
         $actual = $this->grabValueFromApc($key);
-        if (false !== $actual) {
-            $this->assertEquals($value, $actual, "The key '{$key}' exists in APC(u) with the provided value.");
-        }
+        $this->assertFalse($actual, "The key '$key' exists in APCu with the provided value.");
     }
 
     /**
-     * Stores an item `$value` with `$key` on the APC(u).
+     * Stores an item `$value` with `$key` on the APCu.
      *
      * Examples:
      *
@@ -162,13 +152,8 @@ class Apc extends Module
      * $entries['key4'] = 4;
      * $I->haveInApc($entries, null);
      * ```
-     *
-     * @param string|array $key
-     * @param mixed $value
-     * @param int|null $expiration
-     * @return array|string
      */
-    public function haveInApc($key, $value, int $expiration = null)
+    public function haveInApc(string $key, mixed $value, int $expiration = 0): string
     {
         $this->store($key, $value, $expiration);
 
@@ -176,7 +161,7 @@ class Apc extends Module
     }
 
     /**
-     * Clears the APC(u) cache
+     * Clears the APCu cache
      */
     public function flushApc(): void
     {
@@ -185,43 +170,29 @@ class Apc extends Module
     }
 
     /**
-     * Clears the APC(u) cache.
+     * Clears the APCu cache.
      */
     protected function clear(): bool
     {
-        if (function_exists('apcu_clear_cache')) {
-            return apcu_clear_cache();
-        }
-
-        return apc_clear_cache('user');
+        return apcu_clear_cache();
     }
 
     /**
      * Checks if entry exists
-     *
-     * @param string|string[] $key
-     * @return bool|string[]
      */
-    protected function exists($key)
+    protected function exists(string $key): bool
     {
-        if (function_exists('apcu_exists')) {
-            return apcu_exists($key);
-        }
-
-        return apc_exists($key);
+        return apcu_exists($key);
     }
 
     /**
      * Fetch a stored variable from the cache
-     *
-     * @param string|string[] $key
-     * @return mixed
      */
-    protected function fetch($key)
+    protected function fetch(string $key): mixed
     {
         $success = false;
 
-        $data = function_exists('apcu_fetch') ? apcu_fetch($key, $success) : apc_fetch($key, $success);
+        $data = apcu_fetch($key, $success);
 
         $this->debugSection('Fetching a stored variable', $success ? 'OK' : 'FAILED');
 
@@ -230,17 +201,9 @@ class Apc extends Module
 
     /**
      * Cache a variable in the data store.
-     *
-     * @param string|array $key
-     * @param mixed $var
-     * @return array|bool
      */
-    protected function store($key, $var, int $ttl = 0)
+    protected function store(string $key, mixed $var, int $ttl = 0): bool
     {
-        if (function_exists('apcu_store')) {
-            return apcu_store($key, $var, $ttl);
-        }
-
-        return apc_store($key, $var, $ttl);
+        return apcu_store($key, $var, $ttl);
     }
 }
