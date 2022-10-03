@@ -13,11 +13,9 @@
             "name":"Gintautas Miselis"
         }
     ],
-    "minimum-stability": "RC",
     "require": {
-        "php": "^8.0",
         "ext-apcu": "*",
-        "codeception/codeception": "^5.0"
+        "codeception/codeception": "^5"
     },
     "autoload":{
         "classmap": ["src/"]
